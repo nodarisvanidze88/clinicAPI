@@ -39,7 +39,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
         write_only=True,
         source='doctor'
     )
-
     class Meta:
         model = Appointment
         fields = '__all__'

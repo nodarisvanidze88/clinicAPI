@@ -17,16 +17,39 @@ class CustomUserSerializer(serializers.ModelSerializer):
     
 class DoctorSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset = CustomUser.objects.all(),
+        write_only = True,
+        source = 'user'
+    )
     class Meta:
         model = Doctor
         fields = "__all__"
     
 class AppointmentSerializer(serializers.ModelSerializer):
+    patient = CustomUserSerializer(read_only=True)
+    doctor = DoctorSerializer(read_only=True)
+    patient_id = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(),
+        write_only=True,
+        source='patient'
+    )
+    doctor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Doctor.objects.all(),
+        write_only=True,
+        source='doctor'
+    )
+
     class Meta:
         model = Appointment
         fields = '__all__'
     
 class AvailabilitySerializer(serializers.ModelSerializer):
+    doctor = DoctorSerializer(read_only=True)
+    doctor_id = serializers.PrimaryKeyRelatedField(
+        queryset = Doctor.objects.all(),
+        write_only = True
+    )
     class Meta:
         model = Availability
         fields = '__all__'

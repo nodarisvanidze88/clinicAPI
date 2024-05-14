@@ -45,6 +45,9 @@ class Doctor(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor')
     specialty = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.user.username
+
 class Availability(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="availabilities")
     start_time = models.DateTimeField()

@@ -1,13 +1,16 @@
 from django.contrib.auth.models import BaseUserManager,AbstractUser
 from django.db import models
-
+from django.utils import timezone
 class CustomUserManager(BaseUserManager):
     def create_user(self, email,password=None,**extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         user = self.model(email=email,**extra_fields)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
+        else:
+            raise ValueError("Password should be set")
         user.save(using=self._db)
         return user
     
@@ -54,7 +57,16 @@ class Availability(models.Model):
     end_time = models.DateTimeField()
 
 class Appointment(models.Model):
+    TREATMENT_DURATION_CHOICES = [
+        (15, '15 minutes'),
+        (30, '30 minutes'),
+        (45, '45 minutes'),
+        (60, '60 minutes'),
+    ]
     patient = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="appointments")
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name="appointments")
     scheduled_time = models.DateTimeField()
     status = models.CharField(max_length=50)
+    treatment_duration = models.IntegerField(choices=TREATMENT_DURATION_CHOICES)
+    def get_end_time(self):
+        return self.scheduled_time + timezone.timedelta(minutes=self.treatment_duration)
